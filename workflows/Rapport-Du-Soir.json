@@ -1,0 +1,249 @@
+{
+  "name": "Rapport-Du-Soir",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 21,
+              "triggerAtMinute": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3f9acae1-fb13-4875-bb41-ddf4c53801cf",
+      "name": "Calories - Rapport du soir"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "VOTRE_ID_GOOGLE_SHEET",
+          "mode": "list",
+          "cachedResultName": "Mes Calories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/VOTRE_ID_GOOGLE_SHEET/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Feuille 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/VOTRE_ID_GOOGLE_SHEET/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "date",
+              "lookupValue": "={{ $now.format('yyyy-MM-dd') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d9cb3a66-c48c-4715-a2f5-225f5b3a1500",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VOTRE_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "sum",
+              "field": "calories"
+            },
+            {
+              "aggregation": "sum",
+              "field": "protéines"
+            },
+            {
+              "aggregation": "sum",
+              "field": "glucides"
+            },
+            {
+              "aggregation": "sum",
+              "field": "lipides"
+            },
+            {
+              "field": "repas"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "1ca93980-6020-43c9-b513-0c41e1edcc80",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "chatId": "VOTRE_CHAT_ID",
+        "text": "={{ [   '📊 Bilan du jour',   '',   '🍽️ Calories mangées : ' + $json.calories + ' kcal (' + $json.repas + ' repas)',   '👟 Pas : ' + $json.pas + ' (bonus : +' + $json.bonus + ' kcal)',   '🎯 Objectif du jour : ' + $json.objectif + ' kcal',   '',   $json.depasse > 0 ? '⚠️ Dépassé de ' + $json.depasse + ' kcal' : '✅ Il te reste ' + $json.restant + ' kcal',   '',   'Protéines : ' + $json.proteines + ' g',   'Glucides : ' + $json.glucides + ' g',   'Lipides : ' + $json.lipides + ' g' ].join('\\n') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "a3b89162-a991-4610-9055-b4cc1c19e132",
+      "name": "Send a text message",
+      "credentials": {
+        "telegramApi": {
+          "id": "VOTRE_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "VOTRE_ID_GOOGLE_SHEET",
+          "mode": "list",
+          "cachedResultName": "Mes Calories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/VOTRE_ID_GOOGLE_SHEET/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1898777640,
+          "mode": "list",
+          "cachedResultName": "pas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/VOTRE_ID_GOOGLE_SHEET/edit#gid=1898777640"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "date",
+              "lookupValue": "={{ $now.format('yyyy-MM-dd') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        0
+      ],
+      "id": "77e7677a-0c74-4fc6-a274-da9f3dc7a641",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VOTRE_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const s = $('Summarize').first().json;\nconst pas = Number($input.first().json.pas) || 0;\n\nconst calories = Number(s.sum_calories) || 0;\nconst proteines = Number(s['sum_protéines']) || 0;\nconst glucides = Number(s.sum_glucides) || 0;\nconst lipides = Number(s.sum_lipides) || 0;\nconst repas = Number(s.count_repas) || 0;\n\nconst bonus = Math.floor(pas / 5000) * 100;\nconst objectif = 2000 + bonus;\nconst ecart = objectif - calories;\n\nreturn [{\n  json: {\n    pas, calories, proteines, glucides, lipides, repas,\n    bonus, objectif,\n    restant: Math.max(ecart, 0),\n    depasse: Math.max(-ecart, 0)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ],
+      "id": "c0a6eb5d-8cef-4b02-aea8-b5033046625e",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Calories - Rapport du soir": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Africa/Algiers",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "tags": []
+}
