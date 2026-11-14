@@ -134,7 +134,7 @@ flowchart LR
 │   ├── Mes-Calories.json        # Meal logging (Telegram → AI → Sheet)
 │   ├── Mes-Pas.json             # Step sync (iPhone → Webhook → Sheet)
 │   └── Rapport-Du-Soir.json     # Daily report
-└── docs/                        # Screenshots (optional)
+└── docs/                        # Screenshots
 ```
 
 > The workflow and node names are in French because I built the project in French. The logic is language-independent.
