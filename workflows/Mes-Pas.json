@@ -1,0 +1,149 @@
+{
+  "name": "Mes-Pas",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "VOTRE_CHEMIN_SECRET",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2a0fa8f5-e5b9-46c8-9516-21d233b2d7df",
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ed801046-42ae-450f-b1b5-605ac6c67af3",
+              "name": "date",
+              "value": "={{ $now.format('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "3041d44f-b78b-44c7-b1eb-b7e095d96002",
+              "name": "pas",
+              "value": "={{ Math.round(Number($json.body.pas)) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "5e1ae865-e1d7-42fd-b69a-c3c294c4fb92",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "VOTRE_ID_GOOGLE_SHEET",
+          "mode": "list",
+          "cachedResultName": "Mes Calories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/VOTRE_ID_GOOGLE_SHEET/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1898777640,
+          "mode": "list",
+          "cachedResultName": "pas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/VOTRE_ID_GOOGLE_SHEET/edit#gid=1898777640"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "date"
+          ],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "pas",
+              "displayName": "pas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "id": "2d66034d-4825-4771-905c-05286818e17a",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VOTRE_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "tags": []
+}
