@@ -1,0 +1,471 @@
+{
+  "name": "Mes-Calories",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ff5b7a44-d26f-46b9-8360-f31eff4c98e9",
+      "name": "Telegram Trigger",
+      "credentials": {
+        "telegramApi": {
+          "id": "VOTRE_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Tu es un assistant nutritionnel. L'utilisateur te décrit ce qu'il a mangé. Estime les calories et les macronutriments de l'ensemble du repas. Si les quantités ne sont pas précisées, suppose une portion standard. Réponds UNIQUEMENT avec un objet JSON, sans aucun autre texte, au format exact suivant : {\"repas\": \"description courte\", \"calories\": 0, \"proteines\": 0, \"glucides\": 0, \"lipides\": 0} Les valeurs sont des nombres (grammes pour les macros)."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        448,
+        0
+      ],
+      "id": "f6863f5b-8578-425b-8334-9b0871e92c72",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        384,
+        208
+      ],
+      "id": "f7f31bf9-484f-41ed-a89f-7f19ee4899ee",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VOTRE_CREDENTIAL_ID",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d87b6185-74d9-4546-b783-792984c994ac",
+              "name": "date",
+              "value": "={{ $now.format('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "e7d42ee6-5189-4ecd-89b9-4aa5f8f74700",
+              "name": "repas",
+              "value": "={{ JSON.parse($json.text).repas }}",
+              "type": "string"
+            },
+            {
+              "id": "3efec564-4d49-40f7-898d-28ba4c096502",
+              "name": "calories",
+              "value": "={{ JSON.parse($json.text).calories }}",
+              "type": "number"
+            },
+            {
+              "id": "d153acb1-52c0-47e3-854d-0f0693ef48a7",
+              "name": "protéines",
+              "value": "={{ JSON.parse($json.text).proteines }}",
+              "type": "number"
+            },
+            {
+              "id": "b12aaf50-d4df-4cdf-a9bd-02d210fab093",
+              "name": "glucides",
+              "value": "={{ JSON.parse($json.text).glucides }}",
+              "type": "number"
+            },
+            {
+              "id": "72e40681-d333-4193-bc67-7962cd8408c2",
+              "name": "lipides",
+              "value": "={{ JSON.parse($json.text).lipides }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        816,
+        16
+      ],
+      "id": "f4a9fc10-4ba4-4aca-9925-4eed4e6e8aa9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "VOTRE_ID_GOOGLE_SHEET",
+          "mode": "list",
+          "cachedResultName": "Mes Calories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/VOTRE_ID_GOOGLE_SHEET/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Feuille 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/VOTRE_ID_GOOGLE_SHEET/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "repas",
+              "displayName": "repas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "calories",
+              "displayName": "calories",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "protéines",
+              "displayName": "protéines",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "glucides",
+              "displayName": "glucides",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lipides",
+              "displayName": "lipides",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1040,
+        16
+      ],
+      "id": "85c26c97-fbd7-4381-8cc4-ab5801e91817",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VOTRE_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=Ajouté : {{ $('Edit Fields').item.json.repas }} → {{ $('Edit Fields').item.json.calories }} kcal",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1264,
+        16
+      ],
+      "id": "0f6f6a02-86ba-481a-91fe-fa7983f67819",
+      "name": "Send a text message",
+      "credentials": {
+        "telegramApi": {
+          "id": "VOTRE_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "5df50ca3-113d-4f39-b568-73edc8b53338",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "pas",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "9e4947ce-6a3f-4bb2-8f00-d4b47fa8ed8e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b5b4b7b5-4e0c-42dc-ab80-a92f9136241f",
+              "name": "date",
+              "value": "={{ $now.format('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "4aaaa7d1-0d05-4199-b7e7-d2fa021238c0",
+              "name": "pas",
+              "value": "={{ parseInt($json.message.text.replace(/\\D/g, '')) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        496,
+        144
+      ],
+      "id": "d0fcd5f6-6884-4042-bdf3-f520390a29c6",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "VOTRE_ID_GOOGLE_SHEET",
+          "mode": "list",
+          "cachedResultName": "Mes Calories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/VOTRE_ID_GOOGLE_SHEET/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1898777640,
+          "mode": "list",
+          "cachedResultName": "pas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/VOTRE_ID_GOOGLE_SHEET/edit#gid=1898777640"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "date"
+          ],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "pas",
+              "displayName": "pas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        144
+      ],
+      "id": "8e4246cc-a5f0-482a-9b13-b55aea5c753c",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VOTRE_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "tags": []
+}
